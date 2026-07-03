@@ -38,8 +38,16 @@ function App() {
   });
 
   useEffect(() => {
+  const storedUsers = localStorage.getItem("users");
+
+  if (storedUsers) {
+    setUsers(JSON.parse(storedUsers));
+    setLoading(false);
+  } else {
     loadUsers();
-  }, []);
+  }
+}, []);
+
   useEffect(() => {
   setCurrentPage(1);
 }, [searchTerm, filters]);
@@ -72,6 +80,7 @@ function App() {
     });
 
     setUsers(formattedUsers);
+    localStorage.setItem("users", JSON.stringify(formattedUsers));
   } catch (error) {
     alert("Failed to load users.");
     console.error(error);
@@ -147,16 +156,17 @@ const handleSaveUser = async (user) => {
       }
 
       // Update local state
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-          u.id === editUser.id
-            ? {
-                ...u,
-                ...user,
-              }
-            : u
-        )
-      );
+      const updatedUsers = users.map((u) =>
+  u.id === editUser.id
+    ? {
+        ...u,
+        ...user,
+      }
+    : u
+);
+
+setUsers(updatedUsers);
+localStorage.setItem("users", JSON.stringify(updatedUsers));
 
       setEditUser(null);
     } else {
@@ -180,7 +190,7 @@ const handleSaveUser = async (user) => {
       const updatedUsers = [...users, newUser];
 
       setUsers(updatedUsers);
-
+      localStorage.setItem("users", JSON.stringify(updatedUsers));
       // Move to last page
       setCurrentPage(
         Math.ceil(updatedUsers.length / pageSize)
@@ -213,7 +223,10 @@ const handleSaveUser = async (user) => {
     try {
       await deleteUser(id);
 
-      setUsers(users.filter((user) => user.id !== id));
+      const updatedUsers = users.filter((user) => user.id !== id);
+
+setUsers(updatedUsers);
+localStorage.setItem("users", JSON.stringify(updatedUsers));
     } catch (error) {
       alert("Delete failed.");
       console.error(error);
