@@ -136,48 +136,71 @@ function App() {
     startIndex + pageSize
   );
 
-  // Add / Edit
-  const handleSaveUser = async (user) => {
-    try {
-      if (editUser) {
+  // Add / Edit User
+// Add / Edit User
+const handleSaveUser = async (user) => {
+  try {
+    if (editUser) {
+      // Call API only for original JSONPlaceholder users
+      if (editUser.id <= 10) {
         await updateUser(editUser.id, user);
-
-        const updatedUsers = users.map((u) =>
-          u.id === editUser.id
-            ? { ...user, id: editUser.id }
-            : u
-        );
-
-        setUsers(updatedUsers);
-        setEditUser(null);
-      } else {
-        const response = await addUser(user);
-
-        const nextId =
-  users.length > 0
-    ? Math.max(...users.map((u) => u.id)) + 1
-    : 1;
-
-const newUser = {
-  ...response.data,
-  id: nextId,
-};
-
-        setUsers([...users, newUser]);
       }
 
-      setShowForm(false);
-    } catch (error) {
-      alert("Operation failed.");
-      console.error(error);
+      // Update local state
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
+          u.id === editUser.id
+            ? {
+                ...u,
+                ...user,
+              }
+            : u
+        )
+      );
+
+      setEditUser(null);
+    } else {
+      // Fake API call
+      await addUser(user);
+
+      // Generate next sequential ID
+      const nextId =
+        users.length > 0
+          ? Math.max(...users.map((u) => u.id)) + 1
+          : 1;
+
+      const newUser = {
+        id: nextId,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        department: user.department,
+      };
+
+      const updatedUsers = [...users, newUser];
+
+      setUsers(updatedUsers);
+
+      // Move to last page
+      setCurrentPage(
+        Math.ceil(updatedUsers.length / pageSize)
+      );
     }
-  };
+
+    setShowForm(false);
+  } catch (error) {
+    console.error(error);
+    alert("Operation failed.");
+  }
+};
 
   // Edit
   const handleEditUser = (user) => {
-    setEditUser(user);
-    setShowForm(true);
-  };
+  console.log("Clicked Edit:", user);
+
+  setEditUser({ ...user });
+  setShowForm(true);
+};
 
   // Delete
   const handleDeleteUser = async (id) => {
