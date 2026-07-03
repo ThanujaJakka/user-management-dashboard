@@ -100,7 +100,7 @@ src/
 ## Deployment
 
 GitHub Repository:
-(Add your GitHub repository link here.)
+https://github.com/ThanujaJakka/user-management-dashboard.git
 
 Live Demo:
-(Add your Vercel deployment link here.)
+https://user-management-dashboard-inky-two.vercel.app/
